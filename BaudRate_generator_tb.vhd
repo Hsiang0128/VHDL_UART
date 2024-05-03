@@ -21,7 +21,7 @@ BEGIN
 
 		GENERIC MAP(
 			CLK_INPUT	=> 500,
- 			BAUD_RATE	=> 10
+ 			BAUD_RATE	=> 11
 		)
 		PORT MAP(
 			clk => clk,
