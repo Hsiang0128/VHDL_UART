@@ -1,1 +1,0 @@
--intstyle "ise" -incremental -lib "secureip" -o "/home/ise/Xilinx_ISE/UART/uart_rx_tb_isim_beh.exe" -prj "/home/ise/Xilinx_ISE/UART/uart_rx_tb_beh.prj" "work.uart_rx_tb" 
