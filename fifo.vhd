@@ -89,7 +89,7 @@ begin
 					full_next <='1';
 				end if;
 			end if;
-		when others => -- w r i t e / r e a d;
+		when others => -- Write/Read;
 			w_ptr_next <= w_ptr_succ;
 			r_ptr_next <= r_ptr_succ;
 		end case;
