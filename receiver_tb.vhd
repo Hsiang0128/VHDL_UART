@@ -1,10 +1,10 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
-ENTITY uart_rx_tb IS
-END uart_rx_tb;
+ENTITY receiver_tb IS
+END receiver_tb;
  
-ARCHITECTURE behavior OF uart_rx_tb IS 
+ARCHITECTURE behavior OF receiver_tb IS 
 	COMPONENT uart_rx
 	PORT(
 		clk : IN  std_logic;
