@@ -12,4 +12,4 @@ Xilinx ISE 14.7
 - [ ] Top module
 - [ ] Top module testbench
 # References 
-FPGA PROTOTYPING BY VHDL EXAMPLES Xilinx Spartan-3Version
+* FPGA PROTOTYPING BY VHDL EXAMPLES Xilinx Spartan-3Version
