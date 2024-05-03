@@ -11,3 +11,5 @@ Xilinx ISE 14.7
 - [ ] FIFO testbench
 - [ ] Top module
 - [ ] Top module testbench
+# References 
+FPGA PROTOTYPING BY VHDL EXAMPLES Xilinx Spartan-3Version
