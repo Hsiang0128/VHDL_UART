@@ -1,7 +1,7 @@
 library ieee ;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-entity uart_rx is
+entity receiver is
 	generic(
 		DBIT 		: integer := 8 ; 	-- # data bits
 		SB_TICK	: integer := 16 	-- #tick for stop bits
@@ -14,8 +14,8 @@ entity uart_rx is
 		rx_done_tick	: out std_logic;
 		dout 				: out std_logic_vector( 7 downto 0 )
 	);
-end uart_rx;
-architecture code of uart_rx is
+end receiver;
+architecture behavior of receiver is
 	type state_type is (
 		IDLE,
 		START,
@@ -94,4 +94,4 @@ begin
 				end if;
 		end case ;
 	end process;
-end code;
+end behavior;
