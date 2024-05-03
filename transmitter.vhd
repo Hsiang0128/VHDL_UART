@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity transmitter is
 	generic(
 		DBIT		: integer := 8;	-- data bits
-		SB_TICK	: integer := 16; 	-- ticks for stop bits 1
+		SB_TICK	: integer := 16 	-- ticks for stop bits 1
 	);
 	port(
 		clk				: in std_logic;
@@ -18,14 +18,14 @@ entity transmitter is
 	);
 end transmitter ;
 
-architecture behavior of uarttransmitter is
+architecture behavior of transmitter is
 	type state_type is (
 		IDLE,
 		START,
 		DATA,
 		STOP
 	);
-	signal state-reg	: state_type;
+	signal state_reg	: state_type;
 	signal state_next	: state_type;
 	signal s_reg		: unsigned(3 downto 0);
 	signal s_next		: unsigned(3 downto 0);
@@ -36,7 +36,7 @@ architecture behavior of uarttransmitter is
 	signal tx_reg		: std_logic;
 	signal tx_next		: std_logic;
 begin
-	tx <= tx-reg;
+	tx <= tx_reg;
 	process(clk,reset)begin
 		if(reset = '1')then
 			state_reg <= IDLE;
@@ -44,13 +44,12 @@ begin
 			n_reg <= (others=> '0');
 			b_reg	<= (others=> '0');
 			tx_reg <= '1';
-			);
 		elsif(clk'event and clk = '1')then
 			state_reg <= state_next;
 			s_reg <= s_next;
 			n_reg <= n_next;
 			b_reg	<= b_next;
-			tx_reg <= t_next;
+			tx_reg <= tx_next;
 		end if;
 	end process;
 	
@@ -60,20 +59,22 @@ begin
 		n_next <= n_reg;
 		b_next <= b_reg;
 		tx_next <= tx_reg;
+		tx_done_tick <= '0';
 		case state_reg is
 			when IDLE =>
 				tx_next <= '1';
 				if(tx_start = '1')then
 					state_next <= START;
 					s_next <= (others => '0');
-					b_next <= (others => '0');
+					b_next <= din;
 				end if;
 			when START =>
 				tx_next <= '0';
 				if(s_tick = '1')then
 					if(s_reg = 15)then
-						state-next <= data;
-						s-next <= (others=>’O’); n-next <= (others=>’O’);
+						state_next <= data;
+						s_next <= (others=> '0');
+						n_next <= (others=> '0');
 					else
 						s_next <= s_reg + 1;
 						end if;
