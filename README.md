@@ -3,8 +3,8 @@ The basic UART module in VHDL
 # IDE
 Xilinx ISE 14.7
 # Progress 
-- [x] RX module
-- [x] RX textbench
+- [x] Receiver module
+- [x] Receiver textbench
 - [ ] TX module
 - [ ] TX testbench
 - [ ] FIFO module
