@@ -5,7 +5,7 @@ ENTITY receiver_tb IS
 END receiver_tb;
  
 ARCHITECTURE behavior OF receiver_tb IS 
-	COMPONENT uart_rx
+	COMPONENT receiver
 	PORT(
 		clk : IN  std_logic;
 		reset : IN  std_logic;
@@ -29,7 +29,7 @@ ARCHITECTURE behavior OF receiver_tb IS
  
 BEGIN
 
-   uut: uart_rx PORT MAP (
+   uut: receiver PORT MAP (
           clk => clk,
           reset => reset,
           rx => rx,
