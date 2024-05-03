@@ -7,8 +7,8 @@ The basic UART module in VHDL
 Xilinx ISE 14.7
 
 # Progress
-- [ ] Baud Rate Generator
-- [ ] Baud Rate Generator testbench
+- [X] Baud Rate Generator
+- [X] Baud Rate Generator testbench
 - [X] Receiver module
 - [X] Receiver textbench
 - [X] Transmitter module
