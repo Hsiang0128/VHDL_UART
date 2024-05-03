@@ -10,8 +10,8 @@ Xilinx ISE 14.7
 
 - [X] Receiver module
 - [X] Receiver textbench
-- [ ] Transmitter module
-- [ ] Transmitter testbench
+- [X] Transmitter module
+- [X] Transmitter testbench
 - [ ] FIFO module
 - [ ] FIFO testbench
 - [ ] Top module
