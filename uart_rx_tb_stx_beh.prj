@@ -1,2 +1,0 @@
-vhdl isim_temp "receiver.vhd"
-vhdl isim_temp "uart_rx_tb.vhd"
