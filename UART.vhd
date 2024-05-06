@@ -19,9 +19,7 @@ entity UART is
 		tx			: out std_logic;
 		rx_empty	: out std_logic;
 		rx_full	: out std_logic;
-		tx_empty	: out std_logic;
 		tx_full	: out std_logic;
-		full		: out std_logic;
 		r_data	: out std_logic_vector(DATA_BITS-1 downto 0)
 	);
 end UART;
@@ -32,8 +30,11 @@ architecture behavior of UART is
 	signal tx_done_tick 	: std_logic;
 	signal rx_data 		: std_logic_vector(DATA_BITS-1 downto 0);
 	signal tx_data			: std_logic_vector(DATA_BITS-1 downto 0);
-	
+	signal tx_empty		: std_logic;
+	signal n_tx_empty		: std_logic;
 begin
+	n_tx_empty <= not tx_empty;
+
 	uut_BaudRate_generator: entity work.BaudRate_generator(behavior)
 		GENERIC MAP(
 			CLK_INPUT 	=> CLK_INPUT,
@@ -43,6 +44,7 @@ begin
 			clk	=> clk,
 			tick	=> s_tick
 		);
+	
 	uut_receiver: entity work.receiver(behavior)
 		GENERIC MAP(
 			SB_TICK 	=> SB_TICK,
@@ -71,7 +73,7 @@ begin
 			full		=> rx_full,
 			r_data	=> r_data
 		);
-	uut_transmitter: entity work.transmitter(behvior)
+	uut_transmitter: entity work.transmitter(behavior)
 		GENERIC MAP(
 			SB_TICK 	=> SB_TICK,
 			DBIT		=> DATA_BITS
@@ -79,7 +81,7 @@ begin
 		PORT MAP(
 			clk				=> clk,
 			reset				=> reset,
-			tx_start			=> (not tx_empty),
+			tx_start			=> n_tx_empty,
 			s_tick			=> s_tick,
 			din				=> tx_data,
 			tx_done_tick	=> tx_done_tick,
