@@ -35,14 +35,15 @@ ARCHITECTURE behavior OF UART_tb IS
    signal tx_full : std_logic;
    signal r_data : std_logic_vector(7 downto 0);
 
-   constant clk_period : time := 2 ns;
- 
+   constant clk_period : time := 200 ps;
+	
+	signal flag : std_logic := '0';
 BEGIN
 	-- Instantiate the Unit Under Test (UUT)
    uut: entity work.UART(behavior)
 		GENERIC MAP(
-			CLK_INPUT 	=> 500,
-			BAUD_RATE	=> 25,
+			CLK_INPUT 	=> 7372800,
+			BAUD_RATE	=> 115200,
 			DATA_BITS	=> 8,	-- number of bits
 			ADDR_BIT		=> 4,	-- number of address bits
 			SB_TICK		=> 16
@@ -68,20 +69,23 @@ BEGIN
 		wait for clk_period/2;
 		clk <= '1';
 		wait for clk_period/2;
+		reset 	<= '0';
    end process;
-
+	
 	rx <= tx;
    -- Stimulus process
    stim_proc: process
-   begin		
-		wait for 10ns;
-		reset 	<= '0';
-		w_data 	<= "01010101";
-		wr			<= '1';
-		wait for 2ns;
-		wr 		<= '0';
-      wait for 800ns;
+   begin
+		wait for 200 ps;
+		w_data 	<= r_data(6 downto 0)&(not w_data(7));
 		rd			<= '1';
+		wr			<= '1';
+		wait for 200 ps;
+		rd			<= '0';
+		wr 		<= '0';
+		delay: for i in 0 to (7372800/115200)*8 loop
+			wait for 200 ps;
+		end loop;
    end process;
 
 END;
