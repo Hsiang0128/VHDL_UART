@@ -76,6 +76,7 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin
+	
 		wait for 200 ps;
 		w_data 	<= r_data(6 downto 0)&(not w_data(7));
 		rd			<= '1';
@@ -83,7 +84,7 @@ BEGIN
 		wait for 200 ps;
 		rd			<= '0';
 		wr 		<= '0';
-		delay: for i in 0 to (7372800/115200)*8 loop
+		delay: for i in 0 to (7372800/115200)*6 loop
 			wait for 200 ps;
 		end loop;
    end process;
