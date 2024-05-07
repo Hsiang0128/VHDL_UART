@@ -15,8 +15,8 @@ Xilinx ISE 14.7
 - [X] Transmitter testbench
 - [X] FIFO module
 - [X] FIFO testbench
-- [ ] UART module
-- [ ] UART module testbench
+- [X] UART module
+- [X] UART module testbench
 
 # References
 
