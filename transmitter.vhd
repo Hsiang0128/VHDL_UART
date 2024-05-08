@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity transmitter is
 	generic(
 		DBIT		: integer := 8;	-- data bits
-		SB_TICK	: integer := 16 	-- ticks for stop bits 1
+		SB_TICK	: integer := 16 	-- #tick for stop bits
 	);
 	port(
 		clk				: in std_logic;
@@ -21,89 +21,67 @@ end transmitter ;
 architecture behavior of transmitter is
 	type state_type is (
 		IDLE,
+		WAIT_START,
 		START,
 		DATA,
 		STOP
 	);
-	signal state_reg	: state_type;
-	signal state_next	: state_type;
-	signal s_reg		: unsigned(3 downto 0);
-	signal s_next		: unsigned(3 downto 0);
-	signal n_reg		: unsigned(2 downto 0);
-	signal n_next 		: unsigned(2 downto 0);
-	signal b_reg		: std_logic_vector(7 downto 0 );
-	signal b_next		: std_logic_vector(7 downto 0 );
-	signal tx_reg		: std_logic;
-	signal tx_next		: std_logic;
+	signal state_reg		: state_type;
+	signal counter			: integer range 0 to (DBIT-1);
+	signal data_buf		: std_logic_vector(7 downto 0 );
+	signal tick_negedge	: std_logic;
+	signal tick_tmp		: std_logic;
+	
 begin
-	tx <= tx_reg;
+	tick_negedge <= ((not s_tick) and tick_tmp);
 	process(clk,reset)begin
 		if(reset = '1')then
-			state_reg <= IDLE;
-			s_reg <= (others=> '0');
-			n_reg <= (others=> '0');
-			b_reg	<= (others=> '0');
-			tx_reg <= '1';
+			state_reg 	<= IDLE;
+			tx <= '1';
+			tx_done_tick <= '0';
 		elsif(clk'event and clk = '1')then
-			state_reg <= state_next;
-			s_reg <= s_next;
-			n_reg <= n_next;
-			b_reg	<= b_next;
-			tx_reg <= tx_next;
-		end if;
-	end process;
-	
-	process(state_reg ,s_reg,n_reg,b_reg,s_tick,tx_reg,tx_start,din)begin
-		state_next <= state_reg;
-		s_next <= s_reg;
-		n_next <= n_reg;
-		b_next <= b_reg;
-		tx_next <= tx_reg;
-		tx_done_tick <= '0';
-		case state_reg is
-			when IDLE =>
-				tx_next <= '1';
-				if(tx_start = '1')then
-					state_next <= START;
-					s_next <= (others => '0');
-					b_next <= din;
-				end if;
-			when START =>
-				tx_next <= '0';
-				if(s_tick = '1')then
-					if(s_reg = 15)then
-						state_next <= data;
-						s_next <= (others=> '0');
-						n_next <= (others=> '0');
-					else
-						s_next <= s_reg + 1;
+			tick_tmp <= s_tick;
+			case state_reg is
+				when IDLE =>
+					tx 		<= '1';
+					tx_done_tick <= '0';
+					counter 	<= 0;
+					if(tx_start = '1')then
+						state_reg 	<= WAIT_START;
+						data_buf		<= din; 
+					end if;
+				when WAIT_START =>
+					if(tick_negedge = '1')then
+						state_reg 	<= START;
+					end if;
+				when START =>
+					tx <= '0';
+					if(tick_negedge = '1')then
+						state_reg 	<= DATA;
+					end if;
+				when DATA =>
+					tx <= data_buf(0);
+					if(tick_negedge = '1')then
+						data_buf <= '0'&data_buf(7 downto 1);
+						counter	<= counter +1;
+						if(counter = (DBIT - 1))then
+							tx_done_tick <= '1';
+							counter <= 0;
+							state_reg 	<= STOP;
 						end if;
-				end if; 
-			when DATA =>
-				tx_next <= b_reg(0);
-				if (s_tick = '1')then
-					if(s_reg = 15)then
-						s_next <= (others=> '0');
-						b_next <= '0' & b_reg(7 downto 1);
-						if(n_reg = (DBIT - 1))then
-							state_next <= STOP ; 
+					end if;
+				when STOP =>
+					tx <= '1';
+					tx_done_tick <= '0';
+					if(tick_negedge = '1')then
+						if(tx_start = '1')then
+							state_reg <= START;
+							data_buf		<= din;
 						else
-							n_next <= n_reg + 1; 
+							state_reg <= IDLE;
 						end if;
-					else
-						s_next <= s_reg + 1;
 					end if;
-				end if;
-			when STOP =>
-				tx_next <= '1';
-				if(s_tick = '1')then
-					if (s_reg =(SB_TICK-1))then
-						state_next <= IDLE;
-						tx_done_tick <= '1';
-					else
-						s_next <= s_reg + 1;
-					end if;
-				end if;
-		end case; 
+			end case;
+		end if;
 	end process;
 end behavior;

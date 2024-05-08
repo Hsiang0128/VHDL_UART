@@ -23,75 +23,110 @@ architecture behavior of receiver is
 		STOP
 	);
 	signal state_reg	: state_type;
-	signal state_next	: state_type;
-	signal s_reg		: unsigned(3 downto 0);
-	signal s_next		: unsigned(3 downto 0);
-	signal n_reg		: unsigned(2 downto 0);
-	signal n_next 		: unsigned(2 downto 0);
-	signal b_reg		: std_logic_vector(7 downto 0);
-	signal b_next		: std_logic_vector(7 downto 0);
+	signal counter 	: integer range 0 to (DBIT-1);
+	signal data_buf	: std_logic_vector(7 downto 0);
+	signal tick_posedge	: std_logic;
+	signal tick_tmp		: std_logic;
 begin
 
-	dout <= b_reg;
-	process(clk,reset) begin
+	tick_posedge <= (s_tick and (not tick_tmp));
+	dout <= data_buf;
+	process(clk,reset)begin
 		if(reset = '1')then
-			state_reg <= IDLE ;
-			s_reg <= (others => '0');
-			n_reg <= (others => '0');
-			b_reg <= (others => '0');
+			state_reg 	<= IDLE;
+			rx_done_tick <= '0';
+			data_buf <= (others => '0');
 		elsif(clk'event and clk = '1')then
-			state_reg <= state_next ;
-			s_reg <= s_next ;
-			n_reg <= n_next ;
-			b_reg <= b_next ;
-		end if ;
-	end process;
-	
-	process(state_reg,s_reg,n_reg,b_reg,s_tick,rx) begin
-		state_next <= state_reg;
-		s_next <= s_reg;
-		n_next <= n_reg;
-		b_next <= b_reg;
-		rx_done_tick <= '0';
-		case state_reg is
-			when IDLE =>
-				if(rx = '0')then
-					state_next 	<= START;
-					s_next 		<= (others => '0');
-				end if;
-			when START =>
-				if(s_tick = '1')then
-					if(s_reg = 7) then
-						state_next <= DATA;
-						s_next <= (others => '0');
-						n_next <= (others => '0');
-					else
-						s_next <= s_reg + 1;
+			tick_tmp <= s_tick;
+			case state_reg is
+				when IDLE =>
+					rx_done_tick <= '0';
+					counter 	<= 0;
+					if(tick_posedge = '1' and rx = '0')then
+						state_reg 	<= START;
 					end if;
-				end if;
-			when DATA =>
-				if(s_tick = '1')then
-					if(s_reg = 15)then
-						s_next <= (others => '0');
-						b_next <= rx & b_reg(7 downto 1);
-						if(n_reg = (DBIT-1))then
-							state_next <= STOP;
+				when START =>
+					if(tick_posedge = '1')then
+						data_buf <= rx & data_buf(7 downto 1);
+						state_reg 	<= DATA;
+					end if;
+				when DATA =>
+					if(tick_posedge = '1')then
+						counter	<= counter +1;
+						if(counter = (DBIT - 1))then
+							counter <= 0;
+							state_reg 	<= STOP;
+							if(rx = '1')then
+								rx_done_tick <= '1';
+							end if;
 						else 
-							n_next <= n_reg + 1;
+							data_buf <= rx & data_buf(7 downto 1);
 						end if;
-					else 
-						s_next <= s_reg + 1;
 					end if;
-				end if;
-			when STOP =>
-				if(s_tick = '1') then
-					if(s_reg = SB_TICK - 1) then
-						state_next <= IDLE;
-						rx_done_tick <= '1';
-					else
-						s_next <= s_reg + 1;
+				when STOP =>
+					rx_done_tick <= '0';
+					if(tick_posedge = '1')then
+						if(rx = '0')then
+							state_reg <= START;
+						else
+							state_reg <= IDLE;
+						end if;
 					end if;
-				end if;
-		end case ;
+			end case;
+		end if;
 	end process;
+--	
+--	dout <= b_reg;
+--	
+--	process(clk,reset) begin
+--		if(reset = '1')then
+--			state_reg <= IDLE ;
+--			n_reg <= (others => '0');
+--			b_reg <= (others => '0');
+--		elsif(clk'event and clk = '1')then
+--			tick_tmp <= s_tick;
+--			tick_posedge <= (s_tick and (not tick_tmp));
+--			
+--			state_reg <= state_next ;
+--			n_reg <= n_next ;
+--			b_reg <= b_next ;
+--		end if ;
+--	end process;
+--	
+--	process(state_reg,n_reg,b_reg,s_tick,rx,tick_posedge)begin
+--		state_next <= state_reg;
+--		n_next <= n_reg;
+--		b_next <= b_reg;
+--		rx_done_tick <= '0';
+--		case state_reg is
+--			when IDLE =>
+--				n_next <= (others => '0');
+--				if(rx = '0')then
+--					state_next 	<= START;
+--				end if;
+--			when START =>
+--				if(tick_posedge = '1')then
+--					state_next	<= DATA;
+--				elsif(rx = '1')then
+--					state_next	<= IDLE;
+--				end if;
+--			when DATA =>
+--				if(tick_posedge = '1')then
+--					b_next <= rx & b_reg(7 downto 1);
+--					if(n_reg = (DBIT-1))then
+--						n_next <= (others => '0');
+--						state_next <= STOP;
+--					else 
+--						n_next <= n_reg + 1;
+--					end if;
+--				end if;
+--			when STOP =>
+--				if(tick_posedge = '1') then
+--					state_next <= IDLE;
+--					if(rx = '1') then
+--						rx_done_tick <= '1';
+--					end if;
+--				end if;
+--		end case ;
+--	end process;
 end behavior;
