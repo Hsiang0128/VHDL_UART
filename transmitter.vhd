@@ -4,8 +4,7 @@ use ieee.numeric_std.all;
 
 entity transmitter is
 	generic(
-		DBIT		: integer := 8;	-- data bits
-		SB_TICK	: integer := 16 	-- #tick for stop bits
+		DBIT		: integer := 8	-- data bits
 	);
 	port(
 		clk				: in std_logic;

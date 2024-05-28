@@ -6,8 +6,7 @@ entity UART is
 		CLK_INPUT 	: integer := 40000000;
 		BAUD_RATE	: integer := 19200;
 		DATA_BITS	: natural := 8;	-- number of bits
-		ADDR_BIT		: natural := 4;	-- number of address bits
-		SB_TICK		: integer := 16
+		ADDR_BIT		: natural := 4
 	);
 	port(
 		clk		: in std_logic;
@@ -47,7 +46,6 @@ begin
 	
 	uut_receiver: entity work.receiver(behavior)
 		GENERIC MAP(
-			SB_TICK 	=> SB_TICK,
 			DBIT		=> DATA_BITS
 		)
 		PORT MAP (
@@ -75,7 +73,6 @@ begin
 		);
 	uut_transmitter: entity work.transmitter(behavior)
 		GENERIC MAP(
-			SB_TICK 	=> SB_TICK,
 			DBIT		=> DATA_BITS
 		)
 		PORT MAP(

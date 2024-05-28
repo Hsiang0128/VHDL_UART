@@ -1,6 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+use ieee.numeric_std.all;
 ENTITY UART_tb IS
 END UART_tb;
  
@@ -35,18 +35,17 @@ ARCHITECTURE behavior OF UART_tb IS
    signal tx_full : std_logic;
    signal r_data : std_logic_vector(7 downto 0);
 
-   constant clk_period : time := 135.6 ps;
+   constant clk_period : time := 12.5 ns;
 	
 	signal flag : std_logic := '0';
 BEGIN
 	-- Instantiate the Unit Under Test (UUT)
    uut: entity work.UART(behavior)
 		GENERIC MAP(
-			CLK_INPUT 	=> 7372800,
-			BAUD_RATE	=> 300,
+			CLK_INPUT 	=> 40000000,
+			BAUD_RATE	=> 9600,
 			DATA_BITS	=> 8,	-- number of bits
-			ADDR_BIT		=> 4,	-- number of address bits
-			SB_TICK		=> 16
+			ADDR_BIT		=> 4	-- number of address bits
 		)
 		PORT MAP (
 			clk => clk,
@@ -85,7 +84,7 @@ BEGIN
 	process(rx_empty , flag)
    begin
 		if(rx_empty = '0')then
-			w_data 	<= r_data(6 downto 0) & (not w_data(7));
+			w_data 	<= std_logic_vector(unsigned(r_data)+1);
 			wr	<= '1' or flag;
 			rd <= '1' or flag;
 		else 
